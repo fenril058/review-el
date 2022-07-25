@@ -537,29 +537,29 @@ Key bindings:
       (setq pattern review-default-blockop)
     (setq review-default-blockop pattern))
   (cond ((region-active-p)
-	 (save-restriction
-	   (narrow-to-region (region-beginning) (region-end))
-	   (goto-char (point-min))
-	   (cond ((member pattern review-block-op-single)
-		  (insert "//" pattern "\n")
-		  )
-		 (t
-		  (insert "//" pattern "{\n")
-		  (goto-char (point-max))
-		  (insert "//}\n"))
-	   )))
-	(t
-	 (setq review-position (point))
-	 (cond ((member pattern review-block-op-single)
-		(insert "//" pattern "\n")
-		)
-	       (t
-		(insert "//" pattern "{\n")
-		(insert "//}\n")
-		(goto-char review-position)
-		(forward-word)
-	       ))
-	)))
+	     (save-restriction
+	       (narrow-to-region (region-beginning) (region-end))
+	       (goto-char (point-min))
+	       (cond ((member pattern review-block-op-single)
+		          (insert "//" pattern "\n")
+		          )
+		         (t
+		          (insert "//" pattern "{\n")
+		          (goto-char (point-max))
+		          (insert "//}\n"))
+	             )))
+	    (t
+	     (let ((review-position (point)))
+	       (cond ((member pattern review-block-op-single)
+		          (insert "//" pattern "\n")
+		          )
+	             (t
+		          (insert "//" pattern "{\n")
+		          (insert "//}\n")
+		          (goto-char review-position)
+		          (forward-word)
+	              )))
+         )))
 
 ;; beginchild/endchild囲み
 (defun review-child-region ()
