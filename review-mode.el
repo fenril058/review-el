@@ -531,37 +531,6 @@ Key bindings:
 
 ;; リージョン取り込み
 (defvar review-default-blockop "emlist")
-;; (defun review-block-region (pattern)
-;;   "選択領域を指定したタグで囲みます。"
-;;   (interactive
-;;    (list (completing-read
-;;           (concat "タグ [" review-default-blockop "]: ")
-;;           (append review-block-op review-block-op-single) nil nil)))
-;;   (let ((pattern (if (string= "" pattern) review-default-blockop pattern)))
-;;     (cond
-;;      ((region-active-p)
-;; 	  (save-restriction
-;; 	    (narrow-to-region (region-beginning) (region-end))
-;; 	    (goto-char (point-min))
-;; 	    (cond
-;;          ((member pattern review-block-op-single)
-;; 		  (insert "//" pattern "\n"))
-;; 		 (t
-;; 		  (insert "//" pattern "{\n")
-;; 		  (goto-char (point-max))
-;; 		  (insert "//}\n")))))
-;;      (t
-;; 	  (let ((review-position (point)))
-;;         (cond
-;;          ((member pattern review-block-op-single)
-;; 		  (insert "//" pattern "\n")
-;; 		  )
-;; 	     (t
-;; 		  (insert "//" pattern "{\n")
-;; 		  (insert "//}\n")
-;; 		  (goto-char review-position)
-;; 		  (forward-word)
-;; 	      )))))))
 
 (defun review-block-region (arg)
   "選択領域を指定したタグで囲みます.
@@ -581,39 +550,50 @@ Key bindings:
         (review-modify-previous-block pattern)
       (review-insert-block pattern))))
 
+
+;;; TENTATIVE ----
+(defvar review-escape "//"
+  "The review escape character.")
+;;; ----
+
 (defun review-modify-previous-block (pattern)
-  "現在位置をの一つ前のタグをPATTERNに変更する."
+  "現在位置の一つ前のタグをPATTERNに変更する."
   (save-excursion
-    (re-search-backward (concat "//.+{"))
+    (re-search-backward (concat "//" ".+{"))
     (replace-match (concat "//" pattern "{"))
     ))
 
 (defun review-insert-block (pattern)
   "PATTERNタグを挿入する."
   (cond
-     ((region-active-p)
-	  (save-restriction
-	    (narrow-to-region (region-beginning) (region-end))
-	    (goto-char (point-min))
-	    (cond
-         ((member pattern review-block-op-single)
-		  (insert "//" pattern "\n"))
-	     (t
-		  (insert "//" pattern "{\n")
-		  (goto-char (point-max))
-		  (insert "//}\n")))))
+   ((region-active-p)
+	(save-restriction
+	  (narrow-to-region (region-beginning) (region-end))
+	  (goto-char (point-min))
+	  (cond
+       ((member pattern review-block-op-single)
+		(insert "//" pattern)
+        (newline))
+	   (t
+		(insert "//" pattern "{")
+        (newline)
+		(goto-char (point-max))
+		(insert "//" "}")
+        (newline)))))
+   (t
+	(cond
+     ((member pattern review-block-op-single)
+	  (insert "//" pattern)
+      (newline))
      (t
-	  (let ((review-position (point)))
-        (cond
-         ((member pattern review-block-op-single)
-		  (insert "//" pattern "\n"))
-	     (t
-		  (insert "//" pattern "{\n")
-		  (insert "//}\n")
-		  (goto-char review-position)
-		  (forward-word)
-	      )))))
-    )
+      (save-excursion
+        (insert "//" pattern "{")
+        (newline)
+		(insert "//" "}")
+        (newline))
+      (re-search-forward "{")
+	  ))))
+  )
 
 ;; beginchild/endchild囲み
 (defun review-child-region ()
