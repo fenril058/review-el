@@ -531,14 +531,13 @@ Key bindings:
 
 ;; リージョン取り込み
 (defvar review-default-blockop "emlist")
-
 (defun review-block-region (arg)
   "選択領域を指定したタグで囲みます.
 
 もしRegionが選択されていたら, その領域を指定したタグで囲みます。
 もしRegionが選択されていなかったら, 現在のポイントをタグで囲みます.
 もしARGありで呼ばれた場合は、Regionが選択されているかによらず,
-ポインタ位置より前の最も近いタグを変更します."
+カーソル位置より前の最も近いタグを変更します."
   (interactive "*P")
   (let* ((pattern (completing-read
                    (concat "タグ [" review-default-blockop "]: ")
@@ -591,9 +590,11 @@ Key bindings:
         (newline)
 		(insert "//" "}")
         (newline))
-      (re-search-forward "{")
-	  ))))
-  )
+      (forward-word)
+      (forward-char)
+      )))
+   ))
+
 
 ;; beginchild/endchild囲み
 (defun review-child-region ()
